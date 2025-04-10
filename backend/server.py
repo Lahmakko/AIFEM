@@ -1,11 +1,10 @@
 from flask import Flask, request, jsonify
-from receiptparser.receipt_processor import process_receipt
 from flask_cors import CORS
-from receiptparser.ocr_parser import OCRParser
+from receiptparser.receipt_processor import ReceiptProcessor
 
 app = Flask(__name__)
-app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
+
 @app.route("/api/process_receipt", methods=['POST'])
 def process_receipt_route():
     """
@@ -14,14 +13,14 @@ def process_receipt_route():
     """
     if 'receipt' not in request.files:
         return jsonify({"error": "No file part"}), 400
-    
+
     file = request.files['receipt']
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
-    
-    # Process the receipt with the processor
-    receipt_data = process_receipt(file)
-    
+
+    processor = ReceiptProcessor(file)
+    receipt_data = processor.process()
+
     return jsonify(receipt_data)
 
 if __name__ == '__main__':
